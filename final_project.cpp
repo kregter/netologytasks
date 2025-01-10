@@ -1,5 +1,7 @@
-﻿#include <iostream>
+#include <iostream>
 #include <fstream>
+#include <thread>
+
 
 struct Field
 {
@@ -25,7 +27,7 @@ int** create_two_dim_array(int rows, int cols)
 	return arr;
 }
 
-void copy_array(struct Field curField)
+void copy_array(Field& curField)
 {
 	for (int i = 0; i < curField.rows; i++)
 	{
@@ -36,7 +38,7 @@ void copy_array(struct Field curField)
 	}
 }
 
-void print_two_dim_array(struct Field curField, int generation, int numOfAliveCells)
+void print_two_dim_array(Field& curField, int generation, int numOfAliveCells)
 {
 	for (int i = 0; i < curField.rows; i++)
 	{
@@ -54,7 +56,7 @@ void print_two_dim_array(struct Field curField, int generation, int numOfAliveCe
 		std::cout << std::endl;
 	}
 	std::cout << "Generation: " << generation << ". Alive cells: " << numOfAliveCells << std::endl;
-	std::cout << std::endl;
+
 }
 
 void delete_two_dim_array(int** arr, int rows)
@@ -68,7 +70,7 @@ void delete_two_dim_array(int** arr, int rows)
 
 
 
-int count_of_neighbours(struct Field curField, int i, int j)
+int count_of_neighbours(Field& curField, int i, int j)
 {
 	int numOfNeigh = 0;
 	if (i == 0 && j == 0)
@@ -115,7 +117,7 @@ int count_of_neighbours(struct Field curField, int i, int j)
 	return numOfNeigh;
 }
 
-void cell_dustribution(struct Field curField, int i, int j)
+void cell_dustribution(Field& curField, int i, int j)
 {
 	int numOfNeigh = count_of_neighbours(curField, i, j);
 	if (numOfNeigh == 3)
@@ -132,7 +134,7 @@ void cell_dustribution(struct Field curField, int i, int j)
 	}
 }
 
-int count_of_alive_cells(struct Field curField)
+int count_of_alive_cells(Field& curField)
 {
 	int numOfAliveCells = 0;
 	for (int i = 0; i < curField.rows; i++)
@@ -145,7 +147,7 @@ int count_of_alive_cells(struct Field curField)
 	return numOfAliveCells;
 }
 
-bool is_stagnation(struct Field curField)
+bool is_stagnation(Field& curField)
 {
 	for (int i = 0; i < curField.rows; i++)
 	{
@@ -160,12 +162,12 @@ bool is_stagnation(struct Field curField)
 	return true;
 }
 
-bool live_session(struct Field curField, struct EndGame &errors, int &generation, int numOfAliveCells)
+void live_session(Field& curField, EndGame& errors, int &generation, int numOfAliveCells)
 {
 	if (count_of_alive_cells(curField) == 0)
 	{
 		errors.noMoreLivCells = 1;
-		return false;
+		return;
 	}
 
 	for (int i = 0; i < curField.rows; i++)
@@ -180,14 +182,11 @@ bool live_session(struct Field curField, struct EndGame &errors, int &generation
 	{
 		errors.stagnation = 1;
 		generation++;
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		std::system("cls");
 		print_two_dim_array(curField, generation, numOfAliveCells);
-		return false;
 	}
-
-	return true;
 }
-
-
 
 
 int main()
@@ -213,15 +212,15 @@ int main()
 	
 	int generation = 1;
 
-
 	while (errors.stagnation == 0 && errors.noMoreLivCells == 0)
 	{
+		std::system("cls");
 		int numOfAliveCells = count_of_alive_cells(curField);
 		print_two_dim_array(curField, generation, numOfAliveCells);
 		copy_array(curField);
 		live_session(curField, errors, generation, numOfAliveCells);
 		generation++;
-		
+
 		if (errors.stagnation == 1)
 		{
 			std::cout << "The world has stagnated. Game over" << std::endl;
@@ -230,13 +229,12 @@ int main()
 		{
 			std::cout << "All cells are dead. Game over" << std::endl;
 		}
+		std::cout << std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	} 
 
 	delete_two_dim_array(curState, rows);
 	delete_two_dim_array(prevState, rows);
 
 	return 0;
-	
 }
-
-
