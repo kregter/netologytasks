@@ -5,8 +5,8 @@
 
 struct Field
 {
-	int** arr1;
-	int** arr2;
+	bool** arr1;
+	bool** arr2;
 	int rows;
 	int cols;
 };
@@ -17,12 +17,12 @@ struct EndGame
 	bool noMoreLivCells;
 };
 
-int** create_two_dim_array(int rows, int cols)
+bool** create_two_dim_array(int rows, int cols)
 {
-	int** arr = new int* [rows];
+	bool** arr = new bool* [rows];
 	for (int i = 0; i < rows; i++)
 	{
-		arr[i] = new int[cols]();
+		arr[i] = new bool[cols]();
 	}
 	return arr;
 }
@@ -59,7 +59,7 @@ void print_two_dim_array(Field& curField, int generation, int numOfAliveCells)
 
 }
 
-void delete_two_dim_array(int** arr, int rows)
+void delete_two_dim_array(bool** arr, int rows)
 {
 	for (int i = 0; i < rows; i++)
 	{
@@ -188,15 +188,14 @@ void live_session(Field& curField, EndGame& errors, int &generation, int numOfAl
 	}
 }
 
-
 int main()
 {
 	// Write the first state of universe from file
 	int rows, cols;
 	std::ifstream fin("in.txt");
 	fin >> rows >> cols;
-	int** curState = create_two_dim_array(rows, cols);
-	int** prevState = create_two_dim_array(rows, cols);
+	bool** curState = create_two_dim_array(rows, cols);
+	bool** prevState = create_two_dim_array(rows, cols);
 	while (!fin.eof())
 	{
 		int i, j;
@@ -211,7 +210,7 @@ int main()
 	EndGame errors = { stagnation, noMoreLivCells };
 	
 	int generation = 1;
-
+	
 	while (errors.stagnation == 0 && errors.noMoreLivCells == 0)
 	{
 		std::system("cls");
